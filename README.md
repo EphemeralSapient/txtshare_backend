@@ -41,10 +41,24 @@ I'll use swagger once done, as of now :
   - **Query parameter**: `code` (Authorization code from Google)
   - **Response**: JSON with JWT authorization token for authenticated users.
 
+### `/v1/api/account`
+
+- **Get account detail [GET]**
+  Retrieve the detail about registered account.  
+  - **Path parameter**: `accountId`
+  - **Response**: JSON with file details and content corresponding to the account.
+
+- **Update account detail [PUT]**
+  Changes the account username.
+  - **Path parameter**: `accountId`
+  - **Headers**: `Authorization` with Bearer token
+  - **Request body**: JSON with updated `username`.  
+  - **Response**: JSON confirmation of account update.
+
 ## Technology Stack
 - **Backend**: Node.js with Express.js
-- **Database**: PostgreSQL
-- **Planned Features**: Redis for caching and performance improvements, Docker support
+- **Database**: PostgreSQL, Redis [cache]
+- **Planned Features**:  Docker support and benchmarking overall performance [stress test]
 
 
 
@@ -54,3 +68,5 @@ Check example.env and create corresponding values to make it functional for `npm
 Or you can bundle it via `npm run build` and start it from `node dist/main.js`
 
 Hosted this at http://semp.myddns.me/txt
+
+*should i try rust rocket? also considering about bloom filter*

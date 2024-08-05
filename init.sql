@@ -5,10 +5,9 @@ CREATE DATABASE txtshare;
 CREATE TABLE accounts (
     account_id SERIAL PRIMARY KEY,
     oauth_provider VARCHAR(30) NOT NULL, -- For now, it's only google.
-    email VARCHAR(40) NOT NULL,
+    email VARCHAR(40) NOT NULL UNIQUE,
     username VARCHAR(40) NOT NULL,
-    urls TEXT, -- Comma separated url codes
-    urls_count INTEGER DEFAULT 0,
+    -- Created urls can be found on accounts_file table
     created TIMESTAMP NOT NULL DEFAULT NOW()
 );
 CREATE INDEX account_email ON accounts(email);
@@ -43,4 +42,10 @@ CREATE TABLE url_lookup (
 );
 
 CREATE INDEX url_expire ON url_lookup(expire);
+
+-- For checking account files 
+CREATE TABLE account_files ( 
+    account_id INTEGER REFERENCES accounts(account_id) ON DELETE CASCADE PRIMARY KEY,
+    url_code VARCHAR(7) REFERENCES url_lookup(url_code) ON DELETE CASCADE 
+);
 

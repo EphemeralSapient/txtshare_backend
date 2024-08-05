@@ -1,4 +1,7 @@
 require("dotenv").config();
+const redis = require("ioredis");
+const pg = require("pg");
+
 
 module.exports =  {
     // Server configuration
@@ -8,13 +11,20 @@ module.exports =  {
     },
 
     // PostgreSQL Database configuration
-    database: {
+    pool : new pg.Pool({
         user: process.env.PGUSER,
         host: process.env.PGHOST,
         database: process.env.PGDB,
         password: process.env.PGPASS,
-        port: process.env.PGPORT || 5432,
-    },
+        port: process.env.PGPORT || 5432
+    }),
+
+    // Redis configuration
+    redis: new redis({
+        host: process.env.REDIS_HOST,
+        port: process.env.REDIS_PORT || 6379,
+        password: process.env.REDIS_PASS || ""
+    }),
 
     // Time limit configuration
     expireLimit : new Set([
@@ -38,6 +48,10 @@ module.exports =  {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         redirectUri: process.env.GOOGLE_REDIRECT_URI
     },
+
+    // // Bloom Filters
+    // urlBloom: bf.create(1000000, 0.01),
+    // usernameBloom: bf.create(1000000, 0.01),
 
     // Security settings
     security: {

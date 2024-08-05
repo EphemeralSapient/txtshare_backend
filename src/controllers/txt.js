@@ -5,6 +5,8 @@ const crypto = require("crypto");
 
 
 async function delete_txt(url_code, commit_id, single) {
+    // Delete the cache
+    config.redis.del("txt_" + url_code);
     if(single) {
         await pool.query("DELETE FROM files WHERE commit_id = $1", [commit_id]);
     } else {
@@ -66,9 +68,6 @@ exports.uploadTxt = async (req, res) => {
         accountToken = account;
         accountId = account.id;
     }
-    // if(mimeType.startsWith("image") || mimeType.startsWith("video") || disallowedMimeTypes.has(mimeType)) {
-    //     return res.status(415).json({ error: "Unsupported Media type, only text and code types are supported, binary or unstructured types aren't allowed."})
-    // }
     
     var fileName, fileData, pass, category, fileType, expire, flag;
 
@@ -171,15 +170,7 @@ exports.uploadTxt = async (req, res) => {
 
     // Update account details [if authenticated] for count and url
     if(accountId) {
-        await pool.query("UPDATE accounts SET urls_count = urls_count + 1 WHERE account_id = $1", [accountId]);
-        // Get list of urls and append this to it [separated by comma]
-        const accountData = await pool.query("SELECT urls FROM accounts WHERE account_id = $1", [accountId]);
-        const urls = accountData.rows[0].urls;
-        if(urls) {
-            await pool.query("UPDATE accounts SET urls = $1 WHERE account_id = $2", [urls + "," + urlCode, accountId]);
-        } else {
-            await pool.query("UPDATE accounts SET urls = $1 WHERE account_id = $2", [urlCode, accountId]);
-        }
+        await pool.query("INSERT INTO account_files (account_id, url_code) VALUES ($1, $2)", [accountId, urlCode]);
     }
 
     // Successfully inserted into database now.
@@ -240,6 +231,24 @@ exports.getTxt = async (req, res) => {
         return res.status(400).json({ error: "URL Code is required to fetch the file."})
     }
 
+     // If it is cached, return the cached data
+    if( await config.redis.exists("txt_" + urlCode)) {
+        const data = JSON.parse(await config.redis.get("txt_" + urlCode));
+        
+        // Check if expired
+        if(data.fileDetail.expire < Date.now() ) {
+            delete_txt(urlCode, data.fileDetail.commit_id, data.fileDetail.burn);
+            return res.status(410).json({ error: "URL Code has expired, the file has been deleted."})
+        }
+
+        // Check if its burn after read
+        if(data.fileDetail.burn) 
+            delete_txt(urlCode, data.fileDetail.commit_id, data.fileDetail.burn);
+
+
+        return res.status(200).json(data);
+    }  
+
     const result = await pool.query("SELECT * FROM url_lookup WHERE url_code = $1", [urlCode]);
 
     if(result.rowCount == 0) {
@@ -272,7 +281,7 @@ exports.getTxt = async (req, res) => {
         } catch {
             return res.status(400).json({ error: "Can't parse json from request body, assign values for password"})
         }
-    }
+    }  
 
     const txt = await pool.query("SELECT txt FROM files WHERE commit_id = $1", [commitId])
     const fileData = await pool.query("SELECT * FROM file_data WHERE commit_id = $1", [commitId])
@@ -284,6 +293,10 @@ exports.getTxt = async (req, res) => {
     if(fileData.rows[0].burn) {
         await delete_txt(urlCode, commitId, historyCount == 1);
     }
+
+    // Store it on cache
+    if(!pass)    
+        await config.redis.set("txt_" + urlCode, JSON.stringify( { fileDetail: fileData.rows[0], fileData: txt.rows[0].txt} ));
 
     return res.status(200).json({ fileDetail: fileData.rows[0], fileData: txt.rows[0].txt})
 };
@@ -457,6 +470,9 @@ exports.updateTxt = async (req, res) => {
     } catch (e) {
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
     }
+
+    // Invalidate the cache
+    config.redis.del("txt_" + urlCode);
 
     return res.status(200).json({message: "File updated successfully", urlCode:urlCode})
 }
