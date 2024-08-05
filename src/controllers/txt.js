@@ -145,9 +145,9 @@ exports.uploadTxt = async (req, res) => {
         expiry.setDate(expiry.getDate() + 7);
     } else if(expire == "month") {
         expiry.setMonth(expiry.getMonth() + 1);
-    } else if(expire == "year") {
+    } else {
         expiry.setFullYear(expiry.getFullYear() + 1);
-    }
+    } 
 
     // Insert the data into the database
     try {
@@ -158,7 +158,7 @@ exports.uploadTxt = async (req, res) => {
     }
     
     try {
-        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)", [urlCode, commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountId]);
+        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [urlCode, commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountId, expire == "once"]);
     } catch (e) {
         console.log(e);
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
@@ -281,6 +281,10 @@ exports.getTxt = async (req, res) => {
 
     if(txt.rowCount == 0 || fileData.rowCount == 0) {
         return res.status(404).json({ error: "File not found in the database."})
+    }
+
+    if(fileData.rows[0].burn) {
+        await delete_txt(urlCode, commitId, historyCount == 1);
     }
 
     return res.status(200).json({ fileDetail: fileData.rows[0], fileData: txt.rows[0].txt})
@@ -429,7 +433,7 @@ exports.updateTxt = async (req, res) => {
         expiry.setDate(expiry.getDate() + 7);
     } else if(expire == "month") {
         expiry.setMonth(expiry.getMonth() + 1);
-    } else if(expire == "year") {
+    } else {
         expiry.setFullYear(expiry.getFullYear() + 1);
     }
 
@@ -440,7 +444,7 @@ exports.updateTxt = async (req, res) => {
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
     }
     try {
-        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id) VALUES ($1, $2, $3, $4, $5, $6, $7)", [urlCode, new_commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountToken.id]);
+        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [urlCode, new_commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountToken.id, expire == "once"]);
     } catch (e) {
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
     }

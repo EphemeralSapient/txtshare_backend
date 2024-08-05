@@ -25,6 +25,7 @@ CREATE TABLE file_data (
   next_commit CHAR(64) REFERENCES file_data(commit_id) , -- SELF Reference in case of null
   created TIMESTAMP  NOT NULL DEFAULT NOW(), -- Version timestamp 
   expire TIMESTAMP  NOT NULL, -- Expire deadline
+  burn BOOLEAN DEFAULT FALSE, -- If true, file will be deleted after read once
   type VARCHAR(30) NOT NULL, -- File type such as js, py, plain, etc
   category VARCHAR(30), -- Such as code, csv, etc 
   linked_account_id INTEGER REFERENCES accounts(account_id), -- Meant for registered accounts, otherwise its null
