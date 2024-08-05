@@ -53,7 +53,6 @@ exports.googleAuthCallback = async (req, res) => {
             user = await pool.query('SELECT account_id FROM accounts WHERE email = $1', [email]);
             acc_id = user.rows[0].account_id;
         } else {
-            console.log("Aleady exists!");
             acc_id = user.rows[0].account_id;
         }
 

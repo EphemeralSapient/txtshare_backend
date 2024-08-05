@@ -44,7 +44,6 @@ function verifyToken(jwtToken) {
   
 
 exports.uploadTxt = async (req, res) => {
-    console.log("OK");
     const mimeType = req.headers["content-type"];
     var accountToken = req.headers["authorization"];
     var accountId;
@@ -91,7 +90,6 @@ exports.uploadTxt = async (req, res) => {
         fileType = checkLen("fileType") || "None"
         expire = checkLen("expire") || "hour"
     } catch (e){
-        console.log(req)
         return res.status(400).json({ error: "Can't parse json from request body, assign values for fileName, fileData"})
     }
  
@@ -382,7 +380,6 @@ exports.updateTxt = async (req, res) => {
         fileType = checkLen("fileType") || "None"
         expire = checkLen("expire") || "hour"
     } catch (e){
-        console.log(req)
         return res.status(400).json({ error: "Can't parse json from request body, assign values for fileName, fileData"})
     }
  
