@@ -51,6 +51,6 @@ I'll use swagger once done, as of now :
 ## Etc
 Check example.env and create corresponding values to make it functional for `npm run start`
 
-Or you can bundle it via `npm run build` and start it from `node dist/bundle.js`
+Or you can bundle it via `npm run build` and start it from `node dist/main.js`
 
 Hosted this at http://semp.myddns.me/txt
