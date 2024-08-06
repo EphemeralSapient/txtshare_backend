@@ -1,7 +1,3 @@
-CREATE DATABASE txtshare;
-
-\c txtshare ;
-
 CREATE TABLE accounts (
     account_id SERIAL PRIMARY KEY,
     oauth_provider VARCHAR(30) NOT NULL, -- For now, it's only google.

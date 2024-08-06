@@ -6,7 +6,8 @@ https://app.swaggerhub.com/apis-docs/NOWAYOFWAY/txt/1.0.0#/
 ## Technology Stack
 - **Backend**: Node.js with Express.js
 - **Database**: PostgreSQL, Redis [cache]
-- **Planned Features**:  Docker support and benchmarking overall performance [stress test]
+- **Docker** : Before `compose-up`, make sure to complete `.env` file
+- **Planned Features**:  Benchmarking overall performance [stress test]
 
 
 

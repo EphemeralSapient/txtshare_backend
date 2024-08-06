@@ -12,11 +12,11 @@ module.exports =  {
 
     // PostgreSQL Database configuration
     pool : new pg.Pool({
-        user: process.env.PGUSER,
-        host: process.env.PGHOST,
-        database: process.env.PGDB,
-        password: process.env.PGPASS,
-        port: process.env.PGPORT || 5432
+        user: process.env.POSTGRES_USER,
+        host: process.env.POSTGRES_HOST,
+        database: process.env.POSTGRES_DB,
+        password: process.env.POSTGRES_PASSWORD,
+        port: process.env.POSTGRES_PORT || 5432
     }),
 
     // Redis configuration
