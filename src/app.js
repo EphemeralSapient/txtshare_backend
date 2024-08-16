@@ -8,7 +8,7 @@ const pg = require("pg");
 env.config();
 const app = express();
 app.use(express.json()); 
-// app.use(rateLimiter); // Rate limiter middleware
+app.use(rateLimiter); // Rate limiter middleware
 require("./utils/redisCleanup"); // Redis cleanup
 
 // API base path ref

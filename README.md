@@ -16,6 +16,8 @@ Check example.env and create corresponding values to make it functional for `npm
 
 Or you can bundle it via `npm run build` and start it from `node dist/main.js`
 
-Hosted this at http://semp.myddns.me/txt
+Hosted this at http://semp.myddns.me/txt and you can get the webpack'd output from Github Actions of this repo too
 
-*should i try rust rocket? also considering about bloom filter*
+## Alternative
+
+Using gRPC and Rust, remade this repo and you can find it [here](https://github.com/EphemeralSapient/txtshare_backend.rs)
