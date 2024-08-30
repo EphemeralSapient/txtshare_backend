@@ -84,7 +84,7 @@ exports.uploadTxt = async (req, res) => {
 
         fileName = checkLen("fileName")
         fileData = checkLen("fileData",260000)
-        pass = checkLen("password")
+        pass = checkLen("password",100)
         category = checkLen("category") || "None"
         fileType = checkLen("fileType") || "None"
         expire = checkLen("expire") || "hour"
@@ -155,7 +155,7 @@ exports.uploadTxt = async (req, res) => {
     }
     
     try {
-        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [urlCode, commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountId, expire == "once"]);
+        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn, file_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", [urlCode, commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountId, expire == "once", fileName]);
     } catch (e) {
         console.log(e);
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
@@ -268,7 +268,7 @@ exports.getTxt = async (req, res) => {
 
     if(pass) {
         try {
-            const reqPass = req.body.password;
+            const reqPass = req.headers["password"];
             if(reqPass == null) {
                 return res.status(401).json({ error: "Password is required to fetch the file."})
             }
@@ -388,8 +388,8 @@ exports.updateTxt = async (req, res) => {
 
         fileName = checkLen("fileName")
         fileData = checkLen("fileData",260000)
-        pass = checkLen("password")
-        category = checkLen("category") || "None"
+        pass = checkLen("password",100)
+        category = checkLen("category") || ""
         fileType = checkLen("fileType") || "None"
         expire = checkLen("expire") || "hour"
     } catch (e){
@@ -454,7 +454,8 @@ exports.updateTxt = async (req, res) => {
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
     }
     try {
-        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)", [urlCode, new_commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountToken.id, expire == "once"]);
+        console.log(expire == "once");
+        await pool.query("INSERT INTO file_data (url_code, commit_id, created ,expire, type, category, linked_account_id, burn, file_name) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)", [urlCode, new_commitId, new Date().toISOString() ,expiry.toISOString(), fileType, category, accountToken.id, expire == "once", fileName]);
     } catch (e) {
         return res.status(500).json({ error: "Internal server error, failed to insert the data into the database."})
     }
